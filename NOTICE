@@ -1,0 +1,65 @@
+WearTAK Plugin Nearby Drop
+
+Original source: GPL-3.0-or-later. See LICENSE.
+Licensed under GNU General Public License version 3 or, at your option,
+any later version. This grant does not relicense third-party components.
+The scoped GPLv3 Section 7 additional permission in
+LICENSE-ADDITIONAL-PERMISSION.md applies only to covered material the grantor
+owns or controls and only for the combination described there.
+
+Gradle wrapper scripts/JAR:
+  Origin: canonical WearTAK plugin template, revision
+  acc2a58d7a1d50958d472243752fbd85e72b0a91.
+  Gradle authors' original Apache-2.0 notices remain in the scripts.
+  Apache-2.0 license text: third_party/Apache-2.0.txt.
+
+Build/CI configuration and manifest/theme scaffolding:
+  Partly derived from the same template revision (.gitlab-ci.yml, .gitignore,
+  app/build.gradle.kts, settings.gradle.kts, gradle.properties,
+  gradle-wrapper.properties, AndroidManifest.xml, themes.xml).
+  The template revision contains no LICENSE file or license declaration.
+  No template application implementation source was copied; overlap is limited
+  to build/CI configuration and standard manifest/theme scaffolding. The GPL
+  grant and additional permission above do not claim rights to separately
+  copyrightable template material; only that material, if any is identified
+  beyond standard boilerplate, needs its own rights review.
+
+WearTAK plugin SDK:
+  Canonical pin: debug AAR built from source revision
+  86bdc8b04797c2cf6caa30e78e796abac1c2a330 (tree
+  a03d33bc077d81f80cdb53b04ea75e18cf0200a1), archived with repository line
+  endings, source manifest SHA-256
+  3ed70060a8435a90bd3b7369c1cc399183a0861139bf81462b821ad9757e45f9,
+  debug AAR SHA-256
+  db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044.
+  Release AAR SHA-256
+  f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7.
+  Plugin and SDK carry identical scoped GPLv3 Section 7 permissions for the
+  four named Google Play services components; see the packaged notices.
+  No signed SDK AAR is published; the pinned source build is the consumption path.
+  SDK README and complete LICENSE declare GPL-3.0-or-later, compatible with this
+  project's original source license. No AAR is vendored in this repository.
+  This does not relicense proprietary WearTAK host source.
+
+AndroidX and Kotlin:
+  Independently supplied Gradle dependencies, generally Apache-2.0.
+  Preserve their upstream notices and actual resolved dependency licenses.
+
+Google Play services Nearby Connections:
+  com.google.android.gms:play-services-nearby:19.3.0.
+  POM declares Android SDK License, not this project's GPL grant.
+  Runtime transitives: play-services-base:18.5.0, play-services-basement:18.4.0,
+  play-services-tasks:18.2.0, each declaring the same SDK License.
+  https://developer.android.com/studio/terms
+  https://developers.google.com/android/guides/setup
+  Sections 3.4, 3.5 and 3.8 address copying, OSS components and notices.
+  Official integration guidance prescribes these app dependencies.
+  Each Google AAR bundles third_party_licenses.txt for open-source components
+  it contains; the build copies them unmodified into APK assets under
+  third_party/ (SDK License 3.5 and 3.8).
+  Combined distribution requires clarification/review; no blanket GPL/API
+  prohibition is asserted.
+
+Research reference:
+  https://github.com/RyanR3/TakNearbyDrop (GPLv3).
+  No code or assets copied; original protocol and implementation here.
