@@ -39,6 +39,10 @@ fetch_sdk:
     expire_in: 1 day
     paths:
       - build/sdk-source.tar
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
 
 validate:
   extends: [.gradle_image, .artifactory_credentials]
