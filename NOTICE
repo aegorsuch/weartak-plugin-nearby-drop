@@ -30,10 +30,15 @@ WearTAK plugin SDK:
   a03d33bc077d81f80cdb53b04ea75e18cf0200a1), archived with repository line
   endings, source manifest SHA-256
   3ed70060a8435a90bd3b7369c1cc399183a0861139bf81462b821ad9757e45f9,
-  debug AAR SHA-256
-  db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044.
-  Release AAR SHA-256
+  TPC CI debug AAR SHA-256
+  93064008acda73ccfb0c60ad0ef85bcb7f3f0769446a615a934cb1c437011a50.
+  TPC CI release AAR SHA-256
+  beae3192d0e80d6e1f8da39ffbb20f5e0921c904a34ab44268b9b4b35e04faa1.
+  Validated Windows local debug and release AAR SHA-256 values are
+  db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044 and
   f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7.
+  AAR outputs differ across these build environments; each is verified against
+  its environment-specific hash. The immutable SDK source archive is identical.
   Plugin and SDK carry identical scoped GPLv3 Section 7 permissions for the
   four named Google Play services components; see the packaged notices.
   No signed SDK AAR is published; the pinned source build is the consumption path.

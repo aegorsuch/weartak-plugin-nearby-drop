@@ -155,13 +155,25 @@ val verifySdk by tasks.registering {
             .digest(file.readBytes()).joinToString("") { "%02x".format(it) }
         val debugHash = sha256(debugSdk.asFile)
         val releaseHash = sha256(releaseSdk.asFile)
-        check(debugHash == "db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044") {
-            "Unexpected SDK debug artifact SHA-256 $debugHash (release SHA-256 $releaseHash). " +
-                "Build the pinned source AAR using README.md."
+        val isGitLabCi = providers.environmentVariable("GITLAB_CI").orNull == "true"
+        val buildContext = if (isGitLabCi) "TPC CI" else "local"
+        val expectedDebugHash = if (isGitLabCi) {
+            "93064008acda73ccfb0c60ad0ef85bcb7f3f0769446a615a934cb1c437011a50"
+        } else {
+            "db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044"
         }
-        check(releaseHash == "f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7") {
-            "Unexpected SDK release artifact SHA-256 $releaseHash (debug SHA-256 $debugHash). " +
-                "Build the pinned source AAR using README.md."
+        val expectedReleaseHash = if (isGitLabCi) {
+            "beae3192d0e80d6e1f8da39ffbb20f5e0921c904a34ab44268b9b4b35e04faa1"
+        } else {
+            "f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7"
+        }
+        check(debugHash == expectedDebugHash) {
+            "Unexpected SDK debug artifact SHA-256 $debugHash (release SHA-256 $releaseHash); " +
+                "expected $expectedDebugHash for $buildContext. Build the pinned source AAR using README.md."
+        }
+        check(releaseHash == expectedReleaseHash) {
+            "Unexpected SDK release artifact SHA-256 $releaseHash (debug SHA-256 $debugHash); " +
+                "expected $expectedReleaseHash for $buildContext. Build the pinned source AAR using README.md."
         }
         fun normalizedText(file: File) = file.readText().replace("\r\n", "\n").replace("\r", "\n")
         check(normalizedText(sdkAdditionalPermission) ==

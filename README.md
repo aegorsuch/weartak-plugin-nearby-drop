@@ -170,13 +170,18 @@ The fetcher checks out WearTAK SDK source revision
 (canonical SDK merge request 9, tree
 `a03d33bc077d81f80cdb53b04ea75e18cf0200a1`), which includes the PKCS12 review,
 ServerPackage V1 APIs and matching additional-permission notice. It verifies
-the GPL-3.0-or-later license declaration and exports that exact source tree with repository line endings
-(`core.autocrlf=false`), so Windows and Linux builds produce the same AAR. Its
-expected debug and release AAR SHA-256 values are
+the GPL-3.0-or-later license declaration and exports that exact source tree with
+repository line endings (`core.autocrlf=false`). The source archive is
+cross-platform; Android AAR bytes differ between the validated Windows local
+build and TPC CI build environments. Gradle verifies separate debug and release
+SHA-256 pairs for each environment. The TPC CI hashes are
+`93064008acda73ccfb0c60ad0ef85bcb7f3f0769446a615a934cb1c437011a50` and
+`beae3192d0e80d6e1f8da39ffbb20f5e0921c904a34ab44268b9b4b35e04faa1`; the
+validated Windows local hashes are
 `db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044` and
 `f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7`.
-Gradle verifies both AARs and checks that the SDK's additional permission
-matches this repository's text before building. The SDK's complete GPL and
+Gradle also checks that the SDK's additional permission matches this
+repository's text before building. The SDK's complete GPL and
 additional-permission notices are copied from that pinned source into the APK.
 This replaces the template's older, unversioned v1/v2 AAR. The SDK publishes
 no signed AAR; this pinned source build is the supported consumption path.
@@ -292,8 +297,8 @@ Google Play services retain separate licensing terms.
 
 | Dependency | Resolved version | Declared license | Included in debug APK |
 |---|---|---|---|
-| Canonical pinned WearTAK Plugin SDK debug AAR | Built from `86bdc8b04797c2cf6caa30e78e796abac1c2a330`; SHA-256 `db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044` | GPL-3.0-or-later + scoped Section 7 permission | Yes |
-| Canonical pinned WearTAK Plugin SDK release AAR | Built from `86bdc8b04797c2cf6caa30e78e796abac1c2a330`; SHA-256 `f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7` | GPL-3.0-or-later + scoped Section 7 permission | Yes |
+| Canonical pinned WearTAK Plugin SDK debug AAR | Built from `86bdc8b04797c2cf6caa30e78e796abac1c2a330`; TPC CI SHA-256 `93064008acda73ccfb0c60ad0ef85bcb7f3f0769446a615a934cb1c437011a50` | GPL-3.0-or-later + scoped Section 7 permission | Yes |
+| Canonical pinned WearTAK Plugin SDK release AAR | Built from `86bdc8b04797c2cf6caa30e78e796abac1c2a330`; TPC CI SHA-256 `beae3192d0e80d6e1f8da39ffbb20f5e0921c904a34ab44268b9b4b35e04faa1` | GPL-3.0-or-later + scoped Section 7 permission | Yes |
 | `com.google.android.gms:play-services-nearby` | 19.3.0 | Android SDK License | Yes |
 | `com.google.android.gms:play-services-base` | 18.5.0 | Android SDK License | Yes |
 | `com.google.android.gms:play-services-basement` | 18.4.0 | Android SDK License | Yes |
