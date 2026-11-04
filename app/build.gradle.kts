@@ -154,12 +154,14 @@ val verifySdk by tasks.registering {
         fun sha256(file: File) = MessageDigest.getInstance("SHA-256")
             .digest(file.readBytes()).joinToString("") { "%02x".format(it) }
         val debugHash = sha256(debugSdk.asFile)
-        check(debugHash == "db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044") {
-            "Unexpected SDK debug artifact SHA-256 $debugHash. Build the pinned source AAR using README.md."
-        }
         val releaseHash = sha256(releaseSdk.asFile)
+        check(debugHash == "db00bfe9fd98644fbd07161c4b3dfbf65c07513a8197de752fc2a00c59668044") {
+            "Unexpected SDK debug artifact SHA-256 $debugHash (release SHA-256 $releaseHash). " +
+                "Build the pinned source AAR using README.md."
+        }
         check(releaseHash == "f90a36a6cada1a55a3154944a8b524119217cb95176fd055c2a7dd3aeafaa7a7") {
-            "Unexpected SDK release artifact SHA-256 $releaseHash. Build the pinned source AAR using README.md."
+            "Unexpected SDK release artifact SHA-256 $releaseHash (debug SHA-256 $debugHash). " +
+                "Build the pinned source AAR using README.md."
         }
         fun normalizedText(file: File) = file.readText().replace("\r\n", "\n").replace("\r", "\n")
         check(normalizedText(sdkAdditionalPermission) ==
