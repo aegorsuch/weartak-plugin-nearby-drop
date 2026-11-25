@@ -64,8 +64,49 @@ val copyLegalAssets by tasks.registering(Copy::class) {
         rename { "WEARTAK-SDK-LICENSE-ADDITIONAL-PERMISSION.txt" }
     }
     from(rootProject.file("NOTICE")) { rename { "THIRD_PARTY_NOTICES.txt" } }
+    from(rootProject.file("ci/release-runtime-components.txt")) { rename { "THIRD_PARTY_COMPONENTS.txt" } }
+    from(rootProject.file("third_party/Apache-2.0.txt")) { rename { "APACHE-2.0.txt" } }
     from(extractGoogleNotices) { into("third_party") }
     into(generatedLegalAssets)
+}
+
+val verifyReleaseNoticeInputs by tasks.registering {
+    val runtime = configurations.named("releaseRuntimeClasspath")
+    val report = layout.buildDirectory.file("reports/notices/release-runtime-components.txt")
+    val reviewedComponents = rootProject.file("ci/release-runtime-components.txt")
+    inputs.files(runtime, googleNoticeSources)
+    inputs.file(reviewedComponents)
+    outputs.file(report)
+    dependsOn(extractGoogleNotices, "verifySdk")
+    doLast {
+        val artifacts = runtime.get().resolvedConfiguration.resolvedArtifacts
+        val google = artifacts.filter { it.moduleVersion.id.group == "com.google.android.gms" }
+        fun coordinate(artifact: org.gradle.api.artifacts.ResolvedArtifact) =
+            artifact.moduleVersion.id.let { "${it.group}:${it.name}:${it.version}" }
+        val expected = setOf(
+            "com.google.android.gms:play-services-nearby:19.3.0",
+            "com.google.android.gms:play-services-base:18.5.0",
+            "com.google.android.gms:play-services-basement:18.4.0",
+            "com.google.android.gms:play-services-tasks:18.2.0",
+        )
+        check(google.map(::coordinate).toSet() == expected) {
+            "Release Google dependency closure changed; review its notices and additional permission."
+        }
+        val noticeDir = layout.buildDirectory.dir("generated/googleNotices").get().asFile
+        google.forEach { artifact ->
+            val id = artifact.moduleVersion.id
+            check(File(noticeDir, "${id.name}-${id.version}-third_party_licenses.txt").length() > 0) {
+                "Missing notice for ${coordinate(artifact)}."
+            }
+        }
+        val components = artifacts.map(::coordinate).distinct().sorted().joinToString("\n", postfix = "\n")
+        val file = report.get().asFile
+        file.parentFile.mkdirs()
+        file.writeText(components)
+        check(reviewedComponents.readText().replace("\r\n", "\n") == components) {
+            "Release runtime dependencies changed; review license and notice coverage before updating the inventory."
+        }
+    }
 }
 
 android {

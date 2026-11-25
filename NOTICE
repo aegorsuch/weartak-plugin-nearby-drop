@@ -7,6 +7,10 @@ The scoped GPLv3 Section 7 additional permission in
 LICENSE-ADDITIONAL-PERMISSION.md applies only to covered material the grantor
 owns or controls and only for the combination described there.
 
+Release publisher:
+  Adapted from WearTAK Plugin Sextant, canonical revision
+  c4e4ba0576d045485277e5de2cb907983b161750, GPL-3.0-or-later.
+
 Gradle wrapper scripts/JAR:
   Origin: canonical WearTAK plugin template, revision
   acc2a58d7a1d50958d472243752fbd85e72b0a91.
@@ -49,6 +53,12 @@ WearTAK plugin SDK:
 AndroidX and Kotlin:
   Independently supplied Gradle dependencies, generally Apache-2.0.
   Preserve their upstream notices and actual resolved dependency licenses.
+  The resolved release component inventory is packaged as
+  THIRD_PARTY_COMPONENTS.txt. The pinned SDK AAR is supplied separately and
+  described above. For the recorded inventory, AndroidX, Kotlin, coroutines,
+  JetBrains annotations and Guava ListenableFuture declare Apache-2.0 in
+  their Maven POMs; ListenableFuture inherits it from guava-parent 26.0-android.
+  The Apache-2.0 license is packaged as APACHE-2.0.txt.
 
 Google Play services Nearby Connections:
   com.google.android.gms:play-services-nearby:19.3.0.

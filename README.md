@@ -207,6 +207,26 @@ TPC signing variables are inherited from protected group CI configuration:
 `WEARTAK_RELEASE_KEYSTORE_B64`, `RELEASE_STORE_PASSWORD`,
 `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD`. No key or value is stored here.
 
+The entry screen's **Licenses and notices** opens the bundled license texts.
+CI checks the four Google runtime versions and their notice files against the
+release runtime configuration and compares the resolved module inventory with
+`ci/release-runtime-components.txt`. The separately supplied SDK AAR is checked
+by `verifySdk`. This inventory is not a complete license-compliance
+determination; review the other resolved dependencies and their applicable
+notices before release, and review changes before updating the inventory.
+
+The optional `publish_github_main` job is absent unless the protected CI
+variable `NEARBY_DROP_AUTO_PUBLISH` is `true`. It additionally requires a
+manual job action after a successful protected-main signed build. Configure a
+protected, masked `NEARBY_DROP_GITHUB_TOKEN` limited to Contents write on
+`aegorsuch/weartak-plugin-nearby-drop` and pre-create the
+`TAK.gov-Forge-CI-CD-Pipeline-Release` tag on an existing mirror commit before
+enabling it. The publisher never creates or moves tags and re-downloads the APK
+to verify its hash before making the release latest, then checks the
+`releases/latest` response before removing older managed assets. A missing token
+or tag does not block the signed build:
+the verified artifact may instead be mirrored manually after approval.
+
 ## Developer Notes
 
 `protocol` is a pure Kotlin/JVM module; `app` owns Android UI, permission flow,
@@ -269,6 +289,14 @@ arguments, arbitrary intents, reflection or direct host storage access are used.
 The host-side implementation and lifecycle tests are maintained in the
 WearTAK host repository. This repository changes only the plugin and its SDK
 source integration; it does not modify host code.
+
+For initial host qualification, Core 5.8.4-p972 (`da3e7790`) contains the V3
+PKCS12 and server-package controls and is a known source-level candidate, not
+an established minimum version. Exercise the debug-only synthetic fixture
+with a compatible test host, without radios or real credentials. Separately,
+after obtaining an approved signed plugin, verify release host discovery and
+capability negotiation. The release does not contain the fixture.
+Physical-watch radio transfer remains separate acceptance work.
 
 ## License
 
