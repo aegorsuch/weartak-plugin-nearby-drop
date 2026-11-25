@@ -37,6 +37,7 @@
             android:permission="com.weartak.plugin.permission.BIND_PLUGIN">
             <intent-filter>
                 <action android:name="com.weartak.plugin.action.PLUGIN_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
     </application>

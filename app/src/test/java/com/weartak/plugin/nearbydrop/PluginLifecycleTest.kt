@@ -2,6 +2,7 @@
 package com.weartak.plugin.nearbydrop
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Bundle
 import com.weartak.plugin.sdk.WearTakPluginContract
@@ -14,11 +15,25 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class PluginLifecycleTest {
+    @Test fun `service is discoverable by host default-only query`() {
+        val context = RuntimeEnvironment.getApplication()
+        val services = context.packageManager.queryIntentServices(
+            Intent(WearTakPluginContract.ACTION_PLUGIN_SERVICE),
+            PackageManager.GET_META_DATA or PackageManager.MATCH_DEFAULT_ONLY,
+        )
+        assertTrue(services.any {
+            it.serviceInfo.packageName == context.packageName &&
+                it.serviceInfo.name == NearbyDropService::class.java.name &&
+                it.serviceInfo.permission == WearTakPluginContract.PERMISSION_BIND_PLUGIN
+        })
+    }
+
     @Test fun `service requires correct bind action and declares only external main UI`() {
         val controller = Robolectric.buildService(NearbyDropService::class.java).create()
         try {
