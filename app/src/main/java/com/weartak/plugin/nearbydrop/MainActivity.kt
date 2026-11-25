@@ -3,6 +3,7 @@ package com.weartak.plugin.nearbydrop
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -722,6 +723,9 @@ class MainActivity : AppCompatActivity() {
                 clearSelection()
                 openBundlePicker()
             }
+        }
+        addButton(R.string.licenses) {
+            startActivity(Intent(this, LicensesActivity::class.java))
         }
     }
 

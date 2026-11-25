@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Nearby Drop</string>
+    <string name="licenses">Licenses and notices</string>
+    <string name="license_error">Notice unavailable. Reinstall the plugin or contact the maintainer.</string>
+    <string name="license_list">All notices</string>
+    <string name="license_previous">Previous page</string>
+    <string name="license_next">Next page</string>
+    <string name="license_page">Page %1$d of %2$d</string>
     <string name="plugin_description">Verified nearby server package and PKCS12 transfer with WearTAK review handoff.</string>
     <string name="foundation_notice">Receiving never imports credentials. WearTAK review is separate.</string>
     <string name="idle">Receive or send a server package or PKCS12 bundle.</string>

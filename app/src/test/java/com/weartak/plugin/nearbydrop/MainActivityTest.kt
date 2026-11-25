@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -84,13 +85,16 @@ class MainActivityTest {
         } finally { controller.destroy() }
     }
 
-    @Test fun `entry screen shows only Receive then Send`() {
+    @Test fun `entry screen includes notices after transfer actions`() {
         val controller = Robolectric.buildActivity(MainActivity::class.java).create()
         try {
             val activity = controller.get()
             val root = activity.findViewById<ViewGroup>(android.R.id.content)
             val buttons = descendants(root).filterIsInstance<Button>().map { it.text.toString() }
-            assertEquals(listOf("Receive", "Send"), buttons)
+            assertEquals(listOf("Receive", "Send", activity.getString(R.string.licenses)), buttons)
+            descendants(root).filterIsInstance<Button>()
+                .single { it.text == activity.getString(R.string.licenses) }.performClick()
+            assertEquals(LicensesActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
         } finally { controller.destroy() }
     }
 

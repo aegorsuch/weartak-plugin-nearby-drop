@@ -28,9 +28,9 @@ class ServerPackageUiTest {
         try {
             val activity = controller.get()
             shadowOf(Looper.getMainLooper()).idle()
-            assertEquals(listOf(activity.getString(R.string.receive_bundle), activity.getString(R.string.choose_bundle)),
+            assertEquals(listOf(R.string.receive_bundle, R.string.choose_bundle, R.string.licenses).map(activity::getString),
                 buttons(activity).map { it.text.toString() })
-            buttons(activity).last().performClick()
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
             assertEquals(
                 listOf(R.string.send_server_package, R.string.send_bundle_file, R.string.cancel).map(activity::getString),
                 buttons(activity).map { it.text.toString() },
@@ -78,7 +78,7 @@ class ServerPackageUiTest {
         val controller = Robolectric.buildActivity(MainActivity::class.java).create().start().resume()
         try {
             val activity = controller.get()
-            buttons(activity).last().performClick()
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
             buttons(activity).first().performClick()
             awaitMain { control.requestExportCalls == 1 && buttons(activity).map { it.text.toString() } ==
                 listOf(activity.getString(R.string.cancel)) }
@@ -105,7 +105,7 @@ class ServerPackageUiTest {
         ServerPackageBridge.setDiscovery(ServerPackageFixtures.supported(control))
         val controller = Robolectric.buildActivity(MainActivity::class.java).create().start().resume()
         val activity = controller.get()
-        buttons(activity).last().performClick()
+        buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
         buttons(activity).first().performClick()
         awaitMain { control.requestExportCalls == 1 && buttons(activity).size == 1 }
         controller.pause().stop()
@@ -127,7 +127,7 @@ class ServerPackageUiTest {
             val activity = controller.get()
             val chooser = listOf(R.string.send_server_package, R.string.send_bundle_file, R.string.cancel)
                 .map(activity::getString)
-            buttons(activity).last().performClick()
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
             buttons(activity).first().performClick()
             awaitMain { control.requestExportCalls == 1 && buttons(activity).size == 1 }
 
@@ -140,10 +140,10 @@ class ServerPackageUiTest {
                 shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1_100))
                 texts(activity).any { it == activity.getString(R.string.export_cancelled) }
             }
-            assertEquals(listOf(R.string.receive_bundle, R.string.choose_bundle).map(activity::getString),
+            assertEquals(listOf(R.string.receive_bundle, R.string.choose_bundle, R.string.licenses).map(activity::getString),
                 buttons(activity).map { it.text.toString() })
 
-            buttons(activity).last().performClick()
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
             settle()
             assertEquals(chooser, buttons(activity).map { it.text.toString() })
             // Host re-initialization replays the stale cancelled transport state; chooser must stay.
@@ -170,7 +170,7 @@ class ServerPackageUiTest {
         val controller = Robolectric.buildActivity(MainActivity::class.java).create().start().resume()
         try {
             val activity = controller.get()
-            buttons(activity).last().performClick()
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
             buttons(activity).first().performClick()
             awaitMain { texts(activity).contains(activity.getString(R.string.export_unauthorized)) }
             assertTrue(activity.getString(R.string.export_unauthorized).contains("Reopen Nearby Drop from WearTAK"))

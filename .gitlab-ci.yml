@@ -14,6 +14,7 @@ stages:
   - prepare
   - test
   - build
+  - publish
 
 .gradle_image:
   image:
@@ -60,13 +61,14 @@ validate:
     - cd "$CI_PROJECT_DIR"
     - cp build/sdk-source/build/outputs/aar/weartak-plugin-sdk-debug.aar app/libs/weartak-plugin-sdk-debug.aar
     - cp build/sdk-source/build/outputs/aar/weartak-plugin-sdk-release.aar app/libs/weartak-plugin-sdk-release.aar
-    - ./gradlew --no-daemon :protocol:test :app:testDebugUnitTest :app:lintDebug :app:packageDebugArtifact :app:compileReleaseKotlin :app:processReleaseMainManifest
+    - ./gradlew --no-daemon :protocol:test :app:testDebugUnitTest :app:lintDebug :app:packageDebugArtifact :app:compileReleaseKotlin :app:processReleaseMainManifest :app:verifyReleaseNoticeInputs
   artifacts:
     when: always
     expire_in: 7 days
     paths:
       - app/build/outputs/nearbydrop/debug/*.apk
       - app/build/reports/lint-results-debug.*
+      - app/build/reports/notices/release-runtime-components.txt
     reports:
       junit:
         - protocol/build/test-results/test/*.xml
@@ -113,7 +115,7 @@ validate:
     - cp build/sdk-source/build/outputs/aar/weartak-plugin-sdk-debug.aar app/libs/weartak-plugin-sdk-debug.aar
     - cp build/sdk-source/build/outputs/aar/weartak-plugin-sdk-release.aar app/libs/weartak-plugin-sdk-release.aar
     - chmod +x gradlew
-    - ./gradlew --no-daemon clean :app:packageReleaseArtifact
+    - ./gradlew --no-daemon clean :app:packageReleaseArtifact :app:verifyReleaseNoticeInputs
     - |
       set -eu
       APK="$(find app/build/outputs/nearbydrop/release -type f -name '*.apk' | head -1)"
@@ -141,8 +143,26 @@ main_release:
     paths:
       - app/build/outputs/nearbydrop/release/*.apk
       - app/build/outputs/nearbydrop/release/*.apk.sha256
+      - app/build/outputs/apk/release/app-release.apk
+      - app/build/outputs/apk/release/output-metadata.json
+      - app/build/reports/notices/release-runtime-components.txt
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "push"'
+
+publish_github_main:
+  stage: publish
+  image: python:3.12-slim
+  needs:
+    - job: main_release
+      artifacts: true
+  resource_group: nearby-drop-github-main
+  interruptible: false
+  script:
+    - python ci/publish_github_release.py
+  rules:
+    - if: '$NEARBY_DROP_AUTO_PUBLISH == "true" && $CI_SERVER_HOST == "git.tak.gov" && $CI_PROJECT_PATH == "weartak-plugins/weartak-plugin-nearby-drop" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "push"'
+      when: manual
+      allow_failure: true
 
 official_release:
   extends: .release_build

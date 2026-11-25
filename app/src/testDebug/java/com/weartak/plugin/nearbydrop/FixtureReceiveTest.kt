@@ -138,7 +138,7 @@ class FixtureReceiveTest {
             controller.start().resume()
             await { true }
             assertEquals(
-                listOf(R.string.check_status, R.string.receive_bundle, R.string.choose_bundle).map(activity::getString),
+                listOf(R.string.check_status, R.string.receive_bundle, R.string.choose_bundle, R.string.licenses).map(activity::getString),
                 buttons(activity).map { it.text.toString() },
             )
             buttons(activity).first().performClick()
