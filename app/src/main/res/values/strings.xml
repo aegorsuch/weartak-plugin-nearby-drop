@@ -25,6 +25,7 @@
     <string name="invalid_bundle">Cannot use this bundle. Requires PKCS12 up to 32,700 bytes with a MAC, no plaintext key or unsupported bags.</string>
     <string name="read_failed">Cannot read this file.</string>
     <string name="no_document_picker">No document picker on this watch. Receiving still works.</string>
+    <string name="watch_document_stub_unavailable">Bundle files unavailable on this watch. Reopen Nearby Drop from WearTAK to check server package support.</string>
     <string name="offering">Offering PKCS12 bundle for up to two minutes. Keep Nearby Drop open on both watches.</string>
     <string name="searching">Searching for senders for up to two minutes. Keep this screen open.</string>
     <string name="connecting">Connecting. Nothing sent.</string>
@@ -58,6 +59,7 @@
     <string name="host_ready">Ready.</string>
     <string name="no_settings">This plugin has no hosted settings.</string>
     <string name="send_choice">Choose what to send.</string>
+    <string name="send_choice_no_bundle">Bundle files unavailable on this watch. Choose server package.</string>
     <string name="send_server_package">Server package</string>
     <string name="send_bundle_file">Bundle file</string>
     <string name="export_starting">Opening WearTAK server picker. Nothing shared.</string>
