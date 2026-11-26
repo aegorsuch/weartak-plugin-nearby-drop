@@ -122,7 +122,7 @@ class PublisherTests(unittest.TestCase):
         self.root = Path(self.directory.name)
         output = self.root / p.OUTPUT
         output.mkdir(parents=True)
-        self.apk = output / "WearTAK-Plugin-Nearby-Drop-5.8.4-p12.apk"
+        self.apk = output / "WearTAK-Plugin-Nearby-Drop-5.9.0-p12.apk"
         self.apk.write_bytes(b"signed apk fixture")
         self.digest = hashlib.sha256(self.apk.read_bytes()).hexdigest()
         self.apk.with_name(self.apk.name + ".sha256").write_text(
@@ -237,10 +237,10 @@ class PublisherTests(unittest.TestCase):
         self.assertIn("5.8.0.3-p12+de139f69", api.release["body"])
 
     def test_release_asset_name_has_one_pipeline_suffix_and_no_build_metadata(self):
-        for version in ("5.8.4", "5.8.4+e272aac1", "5.8.4-p42+e272aac1"):
+        for version in ("5.9.0", "5.9.0+e272aac1", "5.9.0-p42+e272aac1"):
             with self.subTest(version=version):
                 self.assertEqual(p.release_asset_name(version, 42),
-                                 "WearTAK-Plugin-Nearby-Drop-5.8.4-p42.apk")
+                                 "WearTAK-Plugin-Nearby-Drop-5.9.0-p42.apk")
 
     def test_mismatched_version_pipeline_fails_before_network_or_writes(self):
         api = FakeGitHub()
@@ -249,7 +249,7 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(api.calls, [])
 
     def test_main_preserves_signed_bytes_and_same_pipeline_original_on_retry(self):
-        self.metadata["elements"][0].update(versionName="5.8.4-p12+eeeeeeee", versionCode=5840012)
+        self.metadata["elements"][0].update(versionName="5.9.0-p12+eeeeeeee", versionCode=5900012)
         self.write_metadata()
         api = FakeGitHub(self.state | {"sha256": self.digest})
         old = asset(9, 12, self.apk.read_bytes())
@@ -263,9 +263,9 @@ class PublisherTests(unittest.TestCase):
             self.assertEqual(p.main(), 0)
         self.assertIn(old, api.items)
         self.assertEqual(api.content[100], self.apk.read_bytes())
-        self.assertEqual(api.items[1]["name"], "WearTAK-Plugin-Nearby-Drop-5.8.4-p12.apk")
-        self.assertIn("5.8.4-p12+eeeeeeee", api.release["body"])
-        self.assertIn("5840012", api.release["body"])
+        self.assertEqual(api.items[1]["name"], "WearTAK-Plugin-Nearby-Drop-5.9.0-p12.apk")
+        self.assertIn("5.9.0-p12+eeeeeeee", api.release["body"])
+        self.assertIn("5900012", api.release["body"])
         self.assertFalse(any(c[0] == "POST" and c[1] != "dispatches" for c in api.calls))
 
     def test_unprefixed_assets_are_not_owned(self):
@@ -418,13 +418,25 @@ class PublisherTests(unittest.TestCase):
             p.artifact(self.root)
 
     def test_main_rejects_artifact_from_another_pipeline(self):
-        self.metadata["elements"][0].update(versionName="5.8.4-p11+eeeeeeee", versionCode=5840011)
+        self.metadata["elements"][0].update(versionName="5.9.0-p11+eeeeeeee", versionCode=5900011)
         self.write_metadata()
         with patch.dict(p.os.environ, environment(), clear=True), \
                 patch.object(p.Path, "cwd", return_value=self.root), \
                 patch.object(p, "GitHub") as github:
             self.assertEqual(p.main(), 1)
             github.assert_not_called()
+
+    def test_main_rejects_old_release_or_wrong_code(self):
+        for version, code in (("5.8.4-p12+eeeeeeee", 5840012),
+                              ("5.9.0-p12+eeeeeeee", 5840012)):
+            with self.subTest(version=version, code=code):
+                self.metadata["elements"][0].update(versionName=version, versionCode=code)
+                self.write_metadata()
+                with patch.dict(p.os.environ, environment(), clear=True), \
+                        patch.object(p.Path, "cwd", return_value=self.root), \
+                        patch.object(p, "GitHub") as github:
+                    self.assertEqual(p.main(), 1)
+                    github.assert_not_called()
 
     def test_debug_or_wrong_output_metadata_is_rejected(self):
         for key, value in (("applicationId", "com.weartak.plugin.nearbydrop.dev"),

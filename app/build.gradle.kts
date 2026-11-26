@@ -121,11 +121,11 @@ android {
         if (pipelineIid != null) {
             check(pipelineIid in 0..9999) { "CI_PIPELINE_IID exceeds the supported version range." }
             val commit = providers.environmentVariable("CI_COMMIT_SHORT_SHA").orElse("local").get()
-            versionCode = 584 * 10000 + pipelineIid
-            versionName = "5.8.4-p$pipelineIid+$commit"
+            versionCode = 590 * 10000 + pipelineIid
+            versionName = "5.9.0-p$pipelineIid+$commit"
         } else {
-            versionCode = 584
-            versionName = "5.8.4"
+            versionCode = 590 * 10000
+            versionName = "5.9.0"
         }
     }
 
@@ -231,7 +231,7 @@ tasks.register<Copy>("packageDebugArtifact") {
     from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
     into(layout.buildDirectory.dir("outputs/nearbydrop/debug"))
     val pipeline = providers.environmentVariable("CI_PIPELINE_IID").orElse("0").get()
-    rename { "WearTAK-Plugin-Nearby-Drop-5.8.4-p$pipeline.apk" }
+    rename { "WearTAK-Plugin-Nearby-Drop-5.9.0-p$pipeline.apk" }
 }
 
 tasks.register<Copy>("packageReleaseArtifact") {
@@ -239,5 +239,5 @@ tasks.register<Copy>("packageReleaseArtifact") {
     from(layout.buildDirectory.file("outputs/apk/release/app-release.apk"))
     into(layout.buildDirectory.dir("outputs/nearbydrop/release"))
     val pipeline = providers.environmentVariable("CI_PIPELINE_IID").orElse("0").get()
-    rename { "WearTAK-Plugin-Nearby-Drop-5.8.4-p$pipeline.apk" }
+    rename { "WearTAK-Plugin-Nearby-Drop-5.9.0-p$pipeline.apk" }
 }
