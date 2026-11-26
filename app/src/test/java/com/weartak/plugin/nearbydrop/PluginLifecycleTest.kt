@@ -21,6 +21,12 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class PluginLifecycleTest {
+    @Test fun `wifi state permission remains declared on modern Android`() {
+        val context = RuntimeEnvironment.getApplication()
+        val info = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+        assertTrue(info.requestedPermissions.orEmpty().contains(android.Manifest.permission.ACCESS_WIFI_STATE))
+    }
+
     @Test fun `service is discoverable by host default-only query`() {
         val context = RuntimeEnvironment.getApplication()
         val services = context.packageManager.queryIntentServices(

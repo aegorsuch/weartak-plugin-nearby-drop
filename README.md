@@ -10,14 +10,19 @@ final save. Nearby Drop has no apply method and never treats transfer receipt or
 staging as import, enrollment, trust, or connection.
 
 The plugin opens from the WearTAK Plugins menu to two actions, **Receive** then
-**Send**. **Send** chooses a local PKCS12 bundle through Android's document
-picker, then requires an explicit **Offer selected bundle** tap.
+**Send**. Where a working Android document picker is available, **Send** can
+choose a local PKCS12 bundle and requires an explicit **Offer selected bundle** tap.
 **Receive** discovers a sender, both wearers compare Nearby's authentication
 digits and explicitly confirm, and the receiver reviews the payload type and
 exact size before accepting transfer. Receiver receipt means bytes received and
 structurally checked, never successful certificate import or enrollment. A
 separate **Review in WearTAK** action appears only when a compatible host
 advertises the PKCS12 staging capability.
+
+Nearby Drop declares Wi-Fi state access on modern Android. When a watch only
+offers the placeholder document picker, standalone PKCS12 bundle selection is
+unavailable; reopen Nearby Drop from WearTAK to check server-package support.
+Server-package export requires a supported WearTAK host and explicit wearer approval.
 
 Only PKCS12 containers up to **32,700 bytes** are accepted. Structural checks
 require PFX version 3 and a MAC, reject visible plaintext private/secret-key bags
@@ -38,7 +43,8 @@ cannot validate before acceptance.
 ### Server package (event provisioning)
 
 On hosts advertising the optional SDK `ServerPackage` V1 capability, **Send**
-offers **Server package** then **Bundle file**. **Server package** opens a
+offers **Server package** and, when a working picker exists, **Bundle file**.
+**Server package** opens a
 WearTAK-owned picker: the wearer selects one configured server and, in WearTAK,
 explicitly confirms any sensitive items. The plugin never reads WearTAK's server
 or credential stores. The host exports one canonical `WTSP` v1 package of at
@@ -64,15 +70,17 @@ host review. **Check WearTAK status** reports host outcomes distinctly: saved
 configuration (`APPLIED`) is not enrollment (`ENROLLED`) or connection
 (`CONNECTED`), and `NETWORK_FAILED` is reported as such. Uncertain export,
 stage or status results fail closed with no automatic retry. Administrator
-PKCS12 bundles can still be sent separately as a **Bundle file**.
+PKCS12 bundles can be sent separately as a **Bundle file** where a working
+document picker is available.
 
 ## Status
 
 Experimental **5.8.4**, not a production release. Source, protocol tests,
 fake-Nearby lifecycle tests, host Binder lifecycle tests, review-handoff tests
 and debug APK builds are provided. Host-side emulator tests have exercised
-synthetic loopback transfer and review; no physical-watch, real-radio or
-production-signed plugin validation has been completed.
+synthetic loopback transfer and review. A signed build has been discovered and
+bound by WearTAK on two watches, but physical watch-to-watch transfer and the
+server-package export capability remain unverified.
 
 The optional SDK V1 PKCS12 staging and ServerPackage V1 export/stage clients are
 integrated. The matching SDK license permission is in the pinned canonical
@@ -117,8 +125,8 @@ mirror of the WearTAK SDK source.
 Two compatible Wear OS watches with Bluetooth/BLE, Android API 30 or later,
 Google Play services exposing Nearby Connections, and this plugin installed.
 Keep both watches on the transfer screen and verify the displayed code on both.
-An accessible local PKCS12 document and a working Android document picker are
-needed for sending; availability on particular watch images is unverified.
+Sending a PKCS12 bundle requires an accessible local document and a working
+Android document picker. Server-package sending requires a supporting host.
 
 The cooperating WearTAK host is needed for plugin discovery; binding uses the
 SDK's signature-protected permission. Release builds use the established TPC

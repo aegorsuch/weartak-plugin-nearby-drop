@@ -545,10 +545,11 @@ class MainActivity : AppCompatActivity() {
         cancelExport()
         clearSelection()
         transport.cancel()
-        status.setText(R.string.send_choice)
+        val documentStub = hasWatchDocumentStub()
+        status.setText(if (documentStub) R.string.send_choice_no_bundle else R.string.send_choice)
         actions.removeAllViews()
         addButton(R.string.send_server_package) { startExport() }
-        addButton(R.string.send_bundle_file) { openBundlePicker() }
+        if (!documentStub) addButton(R.string.send_bundle_file) { openBundlePicker() }
         addButton(R.string.cancel) {
             status.setText(R.string.idle)
             idleActions()
@@ -668,12 +669,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openBundlePicker() {
+        if (hasWatchDocumentStub()) {
+            status.setText(R.string.watch_document_stub_unavailable)
+            idleActions()
+            return
+        }
         try {
             chooseFile.launch(arrayOf("application/x-pkcs12"))
         } catch (_: ActivityNotFoundException) {
             status.setText(R.string.no_document_picker)
             idleActions()
         }
+    }
+
+    private fun hasWatchDocumentStub(): Boolean {
+        val intent = ActivityResultContracts.OpenDocument().createIntent(this, arrayOf("application/x-pkcs12"))
+        val component = intent.resolveActivity(packageManager)
+        return component?.packageName == "com.google.android.wearable.frameworkpackagestubs" &&
+            component.className == "com.google.android.wearable.frameworkpackagestubs.Stubs\$DocumentsStub"
     }
 
     private fun idleActions() {

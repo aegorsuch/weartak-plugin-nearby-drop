@@ -4,6 +4,9 @@ package com.weartak.plugin.nearbydrop
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.content.pm.ActivityInfo
+import android.content.pm.ResolveInfo
+import androidx.activity.result.contract.ActivityResultContracts
 import com.weartak.plugin.nearbydrop.protocol.DropSession
 import com.weartak.plugin.nearbydrop.protocol.DropWire
 import com.weartak.plugin.sdk.serverpackage.ServerPackageDiscovery
@@ -21,6 +24,46 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34], qualifiers = "w192dp-h192dp-round")
 class ServerPackageUiTest {
     @After fun reset() = ServerPackageBridge.setDiscovery(ServerPackageDiscovery.Unsupported)
+
+    @Test fun `unavailable watch document stub is not launched without host export`() {
+        ServerPackageBridge.setDiscovery(ServerPackageDiscovery.Unsupported)
+        val controller = Robolectric.buildActivity(MainActivity::class.java).create().start()
+        try {
+            val activity = controller.get()
+            registerDocumentStub(activity)
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
+            assertNull(shadowOf(activity).nextStartedActivity)
+            assertTrue(texts(activity).any { it.contains("Reopen Nearby Drop from WearTAK") })
+        } finally { controller.stop().destroy() }
+    }
+
+    @Test fun `unavailable watch document stub leaves supported server export accessible`() {
+        ServerPackageBridge.setDiscovery(ServerPackageFixtures.supported(ServerPackageFixtures.FakeControl()))
+        val controller = Robolectric.buildActivity(MainActivity::class.java).create().start()
+        try {
+            val activity = controller.get()
+            registerDocumentStub(activity)
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
+            assertEquals(
+                listOf(activity.getString(R.string.send_server_package), activity.getString(R.string.cancel)),
+                buttons(activity).map { it.text.toString() },
+            )
+            assertTrue(texts(activity).any { it.contains("Bundle files unavailable") })
+        } finally { controller.stop().destroy() }
+    }
+
+    @Test fun `genuine document picker remains available without host export`() {
+        ServerPackageBridge.setDiscovery(ServerPackageDiscovery.Unsupported)
+        val controller = Robolectric.buildActivity(MainActivity::class.java).create().start()
+        try {
+            val activity = controller.get()
+            registerDocumentPicker(activity, "example.documents", "example.documents.Picker")
+            buttons(activity).first { it.text == activity.getString(R.string.choose_bundle) }.performClick()
+            val intent = shadowOf(activity).nextStartedActivity
+            assertNotNull(intent)
+            assertEquals(android.content.Intent.ACTION_OPEN_DOCUMENT, intent.action)
+        } finally { controller.stop().destroy() }
+    }
 
     @Test fun `send offers server package then bundle file while entry stays Receive then Send`() {
         ServerPackageBridge.setDiscovery(ServerPackageFixtures.supported(ServerPackageFixtures.FakeControl()))
@@ -214,6 +257,24 @@ class ServerPackageUiTest {
 
     private fun buttons(activity: MainActivity) =
         descendants(activity.findViewById(android.R.id.content)).filterIsInstance<Button>()
+
+    private fun registerDocumentStub(activity: MainActivity) {
+        registerDocumentPicker(
+            activity, "com.google.android.wearable.frameworkpackagestubs",
+            "com.google.android.wearable.frameworkpackagestubs.Stubs\$DocumentsStub",
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun registerDocumentPicker(activity: MainActivity, packageName: String, className: String) {
+        val intent = ActivityResultContracts.OpenDocument().createIntent(activity, arrayOf("application/x-pkcs12"))
+        shadowOf(activity.packageManager).addResolveInfoForIntent(intent, ResolveInfo().apply {
+            activityInfo = ActivityInfo().apply {
+                this.packageName = packageName
+                name = className
+            }
+        })
+    }
 
     private fun descendants(view: android.view.View): List<android.view.View> =
         listOf(view) + ((view as? ViewGroup)?.let { group -> (0 until group.childCount).flatMap { descendants(group.getChildAt(it)) } } ?: emptyList())
