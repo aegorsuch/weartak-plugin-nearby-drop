@@ -19,10 +19,16 @@ structurally checked, never successful certificate import or enrollment. A
 separate **Review in WearTAK** action appears only when a compatible host
 advertises the PKCS12 staging capability.
 
-Nearby Drop declares Wi-Fi state access on modern Android. When a watch only
-offers the placeholder document picker, standalone PKCS12 bundle selection is
-unavailable; reopen Nearby Drop from WearTAK to check server-package support.
-Server-package export requires a supported WearTAK host and explicit wearer approval.
+Nearby Drop declares Wi-Fi state access and Wi-Fi state change permissions on
+modern Android for Google Nearby Connections. Server-package handoff requires
+a WearTAK host supporting plugin API v3 and the relevant capability; older
+hosts may reject the plugin. Export requires normal WearTAK plugin launch and
+explicit wearer approval. Physical watch-to-watch transfer and server-package
+export remain unverified.
+
+When a watch only offers the placeholder document picker, standalone PKCS12
+bundle selection is unavailable; reopen Nearby Drop from WearTAK to check
+server-package support.
 
 Only PKCS12 containers up to **32,700 bytes** are accepted. Structural checks
 require PFX version 3 and a MAC, reject visible plaintext private/secret-key bags

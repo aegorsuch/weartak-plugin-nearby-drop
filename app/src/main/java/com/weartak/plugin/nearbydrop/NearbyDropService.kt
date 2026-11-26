@@ -23,6 +23,7 @@ import com.weartak.plugin.sdk.serverpackage.ServerPackageDiscovery
 import com.weartak.plugin.sdk.validation.ContractValidationResult
 import com.weartak.plugin.sdk.validation.PluginMetadataValidator
 import com.weartak.plugin.sdk.v2.aidl.IWearTakPluginHostControlV2
+import com.weartak.plugin.sdk.v3.WearTakPluginV3Contract
 import com.weartak.plugin.sdk.v3.aidl.IWearTakPluginHostControlV3
 
 class NearbyDropService : Service() {
@@ -54,7 +55,7 @@ class NearbyDropService : Service() {
             BuildConfig.APPLICATION_ID, getString(R.string.plugin_description),
         )
         override fun getCapabilities() = PluginCapabilitiesParcel(externalMainActivity = true)
-        override fun getApiVersion() = WearTakPluginContract.CONTRACT_API_VERSION
+        override fun getApiVersion() = WearTakPluginV3Contract.CONTRACT_API_VERSION
         override fun getStatus() = PluginStatusParcel(lifecycle.snapshot(), getString(R.string.host_ready))
 
         override fun initializePlugin(init: PluginInitParcel?, control: IWearTakPluginControl?) =

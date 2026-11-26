@@ -10,6 +10,10 @@ import com.weartak.plugin.sdk.aidl.IWearTakPluginControl
 import com.weartak.plugin.sdk.model.PluginInitParcel
 import com.weartak.plugin.sdk.model.PluginLifecycleState
 import com.weartak.plugin.sdk.model.SettingsApplyMode
+import com.weartak.plugin.sdk.serverpackage.ServerPackageContract
+import com.weartak.plugin.sdk.serverpackage.model.ServerPackageCapabilityParcel
+import com.weartak.plugin.sdk.v3.WearTakPluginV3Contract
+import com.weartak.plugin.sdk.v3.aidl.IWearTakPluginHostControlV3
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,10 +25,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class PluginLifecycleTest {
-    @Test fun `wifi state permission remains declared on modern Android`() {
+    @Test fun `wifi state permissions remain declared on modern Android`() {
         val context = RuntimeEnvironment.getApplication()
         val info = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
         assertTrue(info.requestedPermissions.orEmpty().contains(android.Manifest.permission.ACCESS_WIFI_STATE))
+        assertTrue(info.requestedPermissions.orEmpty().contains(android.Manifest.permission.CHANGE_WIFI_STATE))
     }
 
     @Test fun `service is discoverable by host default-only query`() {
@@ -66,6 +71,7 @@ class PluginLifecycleTest {
                 PluginInitParcel(service.packageName, Binder.getCallingUid(), NearbyDropService.PLUGIN_ID),
                 IWearTakPluginControl.Default(), null,
             )
+            assertFalse(ServerPackageBridge.canExport())
             assertEquals(PluginLifecycleState.READY, plugin.getStatus().state)
             plugin.startPlugin()
             assertEquals(PluginLifecycleState.RUNNING, plugin.getStatus().state)
@@ -97,6 +103,12 @@ class PluginLifecycleTest {
                     IWearTakPluginControl.Default(), null,
                 )
             }
+            assertThrows(IllegalArgumentException::class.java) {
+                service.plugin.initializePluginV3(
+                    PluginInitParcel(service.packageName, Binder.getCallingUid() + 1, NearbyDropService.PLUGIN_ID),
+                    IWearTakPluginControl.Default(), null, null,
+                )
+            }
             assertEquals(PluginLifecycleState.BOUND, service.plugin.getStatus().state)
         } finally { controller.destroy() }
     }
@@ -107,17 +119,35 @@ class PluginLifecycleTest {
             val service = controller.get()
             service.onBind(Intent(WearTakPluginContract.ACTION_PLUGIN_SERVICE))
             val plugin = service.plugin
+            val exportControl = ServerPackageFixtures.FakeControl()
+            val host = object : IWearTakPluginHostControlV3.Default() {
+                override fun getServerPackageCapability() = ServerPackageCapabilityParcel(
+                    ServerPackageContract.CAPABILITY_KEY,
+                    ServerPackageContract.API_VERSION,
+                    ServerPackageContract.MAX_PACKAGE_BYTES,
+                    ServerPackageContract.MAX_STAGE_LIFETIME_MS,
+                    ServerPackageContract.MAX_EXPORT_LIFETIME_MS,
+                    supportsReceive = true,
+                    supportsExport = true,
+                )
+                override fun getServerPackageControlV1() = exportControl
+            }
             plugin.initializePluginV3(
                 PluginInitParcel(service.packageName, Binder.getCallingUid(), NearbyDropService.PLUGIN_ID),
                 IWearTakPluginControl.Default(),
                 null,
-                null,
+                host,
             )
             assertEquals(PluginLifecycleState.READY, plugin.getStatus().state)
-            assertEquals(WearTakPluginContract.CONTRACT_API_VERSION, plugin.getApiVersion())
+            assertEquals(WearTakPluginV3Contract.CONTRACT_API_VERSION, plugin.getApiVersion())
             assertFalse(plugin.getCapabilities().deviceIntegration)
+            assertTrue(ServerPackageBridge.canExport())
+            assertEquals(0, exportControl.requestExportCalls)
             plugin.startPlugin()
             assertEquals(PluginLifecycleState.RUNNING, plugin.getStatus().state)
+            assertTrue(ServerPackageBridge.canExport())
+            plugin.stopPlugin()
+            assertFalse(ServerPackageBridge.canExport())
         } finally { controller.destroy() }
     }
 }
