@@ -81,7 +81,7 @@ document picker is available.
 
 ## Status
 
-Experimental **5.8.4**, not a production release. Source, protocol tests,
+Experimental **5.9.0**, not a production release. Source, protocol tests,
 fake-Nearby lifecycle tests, host Binder lifecycle tests, review-handoff tests
 and debug APK builds are provided. Host-side emulator tests have exercised
 synthetic loopback transfer and review. A signed build has been discovered and
@@ -202,7 +202,7 @@ no signed AAR; this pinned source build is the supported consumption path.
 The Gradle wrapper distribution is checksum-pinned.
 
 Named local artifact:
-`app\build\outputs\nearbydrop\debug\WearTAK-Plugin-Nearby-Drop-5.8.4-p0.apk`.
+`app\build\outputs\nearbydrop\debug\WearTAK-Plugin-Nearby-Drop-5.9.0-p0.apk`.
 It is **debug-signed**, not a production release. CI assigns pipeline-unique
 version codes and versions.
 

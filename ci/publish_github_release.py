@@ -323,8 +323,8 @@ def main():
     try:
         state = configuration(os.environ)
         apk, digest, version, code = artifact(Path.cwd())
-        expected_version = f"5.8.4-p{state['pipeline_iid']}+{state['source_sha'][:8]}"
-        if (version != expected_version or code != 5840000 + state["pipeline_iid"]
+        expected_version = f"5.9.0-p{state['pipeline_iid']}+{state['source_sha'][:8]}"
+        if (version != expected_version or code != 5900000 + state["pipeline_iid"]
                 or apk.name != release_asset_name(version, state["pipeline_iid"])):
             raise PublishError("APK version or filename does not match the source pipeline.")
         publish(GitHub(os.environ["NEARBY_DROP_GITHUB_TOKEN"]), state, apk, digest, version, code)
