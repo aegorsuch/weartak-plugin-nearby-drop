@@ -5,7 +5,4 @@ package com.weartak.plugin.nearbydrop
 internal object FixtureHook {
     @Suppress("UNUSED_PARAMETER")
     fun onForeground(activity: MainActivity) = Unit
-
-    @Suppress("UNUSED_PARAMETER")
-    fun applyWindowSecurity(activity: MainActivity) = Unit
 }

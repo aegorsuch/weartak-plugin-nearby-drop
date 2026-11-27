@@ -4,6 +4,7 @@ package com.weartak.plugin.nearbydrop
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
@@ -36,7 +37,9 @@ class MainActivityTest {
         val controller = Robolectric.buildActivity(MainActivity::class.java).create()
         try {
             val activity = controller.get()
+            assertEquals(0, activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE)
             activity.render(NearbyTransport.ViewState(R.string.verify_code, code = "1234"))
+            assertEquals(0, activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE)
             val root = activity.findViewById<ViewGroup>(android.R.id.content)
             val nodes = descendants(root)
             val code = nodes.filterIsInstance<TextView>().single { it.tag == "authentication_code" }
