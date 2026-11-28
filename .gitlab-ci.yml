@@ -9,6 +9,8 @@ variables:
   GRADLE_BUILD_LAUNCHER_TAG: "2.6.2"
   KUBERNETES_MEMORY_LIMIT: "8Gi"
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  # Expose the publisher as a guarded manual action on canonical protected-main pushes.
+  NEARBY_DROP_AUTO_PUBLISH: "true"
 
 stages:
   - prepare

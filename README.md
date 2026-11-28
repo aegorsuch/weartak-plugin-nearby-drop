@@ -229,17 +229,17 @@ by `verifySdk`. This inventory is not a complete license-compliance
 determination; review the other resolved dependencies and their applicable
 notices before release, and review changes before updating the inventory.
 
-The optional `publish_github_main` job is absent unless the protected CI
-variable `NEARBY_DROP_AUTO_PUBLISH` is `true`. It additionally requires a
-manual job action after a successful protected-main signed build. Configure a
-protected, masked `NEARBY_DROP_GITHUB_TOKEN` limited to Contents write on
+The `publish_github_main` job is exposed as a manual action only for protected
+pushes to canonical `main`; `NEARBY_DROP_AUTO_PUBLISH` defaults to `true`, but
+publication still requires explicit job execution. Configure a protected,
+masked `NEARBY_DROP_GITHUB_TOKEN` limited to Contents write on
 `aegorsuch/weartak-plugin-nearby-drop` and pre-create the
-`TAK.gov-Forge-CI-CD-Pipeline-Release` tag on an existing mirror commit before
-enabling it. The publisher never creates or moves tags and re-downloads the APK
-to verify its hash before making the release latest, then checks the
-`releases/latest` response before removing older managed assets. A missing token
-or tag does not block the signed build:
-the verified artifact may instead be mirrored manually after approval.
+`TAK.gov-Forge-CI-CD-Pipeline-Release` tag on an existing mirror commit. The
+publisher never creates or moves tags and re-downloads the APK to verify its
+hash before making the release latest, then checks the `releases/latest`
+response before removing older managed assets. A missing token or tag does not
+block the signed build; publication remains unavailable until configuration is
+corrected.
 
 ## Developer Notes
 
