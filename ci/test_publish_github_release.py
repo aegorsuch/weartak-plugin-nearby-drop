@@ -464,10 +464,31 @@ class PublisherTests(unittest.TestCase):
                            ("CI_COMMIT_REF_PROTECTED", "false"),
                            ("CI_PROJECT_PATH", "fork/project"),
                            ("CI_SERVER_HOST", "other.example"),
+                           ("NEARBY_DROP_AUTO_PUBLISH", "false"),
                            ("CI_PIPELINE_IID", "bad"), ("CI_COMMIT_SHA", "short"),
                            ("CI_PIPELINE_URL", "https://other.example/pipeline")):
             with self.assertRaises(p.PublishError):
                 p.configuration(dict(env, **{key: value}))
+
+    def test_ci_exposes_publisher_only_as_guarded_manual_main_push(self):
+        config = (Path(__file__).resolve().parents[1] / ".gitlab-ci.yml").read_text()
+        variables = config.split("\nvariables:\n", 1)[1].split("\nstages:\n", 1)[0]
+        self.assertIn('  NEARBY_DROP_AUTO_PUBLISH: "true"\n', variables)
+
+        publisher = config.split("\npublish_github_main:\n", 1)[1].split(
+            "\nofficial_release:\n", 1
+        )[0]
+        for condition in (
+            '$CI_SERVER_HOST == "git.tak.gov"',
+            '$CI_PROJECT_PATH == "weartak-plugins/weartak-plugin-nearby-drop"',
+            "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH",
+            '$CI_COMMIT_REF_PROTECTED == "true"',
+            '$CI_PIPELINE_SOURCE == "push"',
+            '$NEARBY_DROP_AUTO_PUBLISH == "true"',
+            "when: manual",
+        ):
+            with self.subTest(condition=condition):
+                self.assertIn(condition, publisher)
 
     def test_redirect_strips_token_and_rejects_http(self):
         req = urllib.request.Request(
