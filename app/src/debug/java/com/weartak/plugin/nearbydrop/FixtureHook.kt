@@ -2,7 +2,6 @@
 package com.weartak.plugin.nearbydrop
 
 import android.os.SystemClock
-import android.view.WindowManager
 
 /**
  * Debug-only synthetic receive path for the offline `.nearbyfixture` simulator demo. Not a product API.
@@ -51,24 +50,7 @@ internal object FixtureHook {
         expiresAt = 0L
     }
 
-    /**
-     * Allows screen capture only while the initialized, signature-bound host is the verified
-     * `.nearbyfixture` simulator package; every other state keeps FLAG_SECURE.
-     */
-    fun applyWindowSecurity(activity: MainActivity) {
-        val host = NearbyDropService.InitializedHost.current
-        val fixture = host != null &&
-            host.packageName.endsWith(FixtureReceiveService.FIXTURE_PACKAGE_SUFFIX) &&
-            activity.packageManager.getPackagesForUid(host.uid)?.contains(host.packageName) == true
-        if (fixture) {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
-
     fun onForeground(activity: MainActivity) {
-        applyWindowSecurity(activity)
         val bytes = take(NearbyDropService.InitializedHost.current) ?: return
         if (!ServerPackageBridge.canReceive()) {
             bytes.fill(0)

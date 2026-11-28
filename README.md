@@ -65,9 +65,9 @@ The sender sees a non-secret summary (server, trust, identity mode, which
 sensitive item types are present) before an explicit **Offer server package**.
 Sensitive fields have no independent app-layer encryption and rely on the
 Nearby UKEY2-encrypted connection plus mutual code confirmation. Secret values
-are never shown, logged or persisted; package bytes stay in memory on a
-`FLAG_SECURE` window and are wiped on send, cancel, leaving the screen or any
-terminal state.
+are never shown, logged or persisted; package bytes stay in memory and are
+wiped on send, cancel, leaving the screen or any terminal state. Screenshots
+are allowed in Nearby Drop, including verification codes and transfer details.
 
 The receiver accepts a server-package offer only when its host can stage
 packages; bytes are validated with the SDK codec. After receipt it sees the
@@ -247,8 +247,8 @@ the verified artifact may instead be mirrored manually after approval.
 Nearby adaptation and a minimal signature-protected WearTAK plugin service.
 All visible UI text is resource-backed. The launcher follows the existing
 plugin template's native AppCompat scroll/action pattern, with round-screen
-padding, 48dp touch targets, system font scaling, secure-window flag and
-backup/device-transfer exclusions.
+padding, 48dp touch targets, system font scaling and backup/device-transfer
+exclusions.
 
 The original protocol is not TakNearbyDrop's endpoint-offer wire format:
 

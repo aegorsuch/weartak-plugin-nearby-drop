@@ -16,7 +16,6 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -175,7 +174,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         transport = NearbyTransport(this, ::render, policy = ServerPackageBridge::policyFor)
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -308,7 +306,6 @@ class MainActivity : AppCompatActivity() {
 
     internal fun render(view: NearbyTransport.ViewState) {
         currentView = view
-        FixtureHook.applyWindowSecurity(this)
         val isPackage = view.offeredKind == DropWire.ContentKind.SERVER_PACKAGE
         if (view.sessionState != DropSession.State.RECEIVED && packageReviewHandle != null &&
             view.code == null && view.sessionState != DropSession.State.REVIEW && view.peers.isEmpty()

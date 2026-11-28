@@ -15,6 +15,7 @@ import com.weartak.plugin.nearbydrop.FixtureReceiveService.Companion.RESULT_INVA
 import com.weartak.plugin.nearbydrop.FixtureReceiveService.Companion.RESULT_NOT_FIXTURE_HOST
 import com.weartak.plugin.nearbydrop.FixtureReceiveService.Companion.RESULT_RECEIVE_UNSUPPORTED
 import com.weartak.plugin.nearbydrop.FixtureReceiveService.Companion.RESULT_TOO_LARGE
+import com.weartak.plugin.nearbydrop.protocol.DropSession
 import com.weartak.plugin.nearbydrop.protocol.DropWire
 import com.weartak.plugin.sdk.serverpackage.ServerPackageDiscovery
 import org.junit.After
@@ -95,23 +96,36 @@ class FixtureReceiveTest {
         assertNull(FixtureHook.take(NearbyDropService.InitializedHost.current))
     }
 
-    @Test fun `screen capture allowed only while verified fixture host is initialized`() {
-        val controller = Robolectric.buildActivity(MainActivity::class.java).create().start()
+    @Test fun `screen capture remains allowed across host changes foreground and render`() {
+        val controller = Robolectric.buildActivity(MainActivity::class.java).create()
         try {
             val activity = controller.get()
             fun secure() = activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0
             assertFalse(secure())
-            NearbyDropService.InitializedHost.set(uid, "com.atakmap.android.weartak")
-            shadowOf(service.packageManager).setPackagesForUid(uid, "com.atakmap.android.weartak")
-            FixtureHook.applyWindowSecurity(activity)
-            assertTrue(secure())
-            NearbyDropService.InitializedHost.set(uid, "spoof.nearbyfixture")
-            FixtureHook.applyWindowSecurity(activity)
-            assertTrue(secure())
-            NearbyDropService.InitializedHost.clear()
-            FixtureHook.applyWindowSecurity(activity)
-            assertTrue(secure())
-        } finally { controller.stop().destroy() }
+            val hosts = listOf(fixturePackage, "com.atakmap.android.weartak", "spoof.nearbyfixture", null)
+            for (host in hosts) {
+                if (host == null) {
+                    NearbyDropService.InitializedHost.clear()
+                } else {
+                    NearbyDropService.InitializedHost.set(uid, host)
+                    shadowOf(service.packageManager).setPackagesForUid(
+                        uid, if (host == "spoof.nearbyfixture") fixturePackage else host,
+                    )
+                }
+                controller.start().resume()
+                assertFalse(secure())
+                activity.render(NearbyTransport.ViewState(R.string.verify_code, code = "1234"))
+                assertTrue(texts(activity).contains("1234"))
+                assertFalse(secure())
+                activity.render(NearbyTransport.ViewState(
+                    R.string.connected, offeredBytes = 512, sessionState = DropSession.State.REVIEW,
+                    offeredKind = DropWire.ContentKind.SERVER_PACKAGE,
+                ))
+                assertTrue(buttons(activity).any { it.text == activity.getString(R.string.accept_offer) })
+                assertFalse(secure())
+                controller.pause().stop()
+            }
+        } finally { controller.destroy() }
     }
 
     @Test fun `host review handle survives host review UI covering the plugin`() {
